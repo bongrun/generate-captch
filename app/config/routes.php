@@ -4,18 +4,14 @@
  * Add your routes here
  */
 $app->map('/', function () use ($app) {
-//    $di = $app->getDI();
-//    $config = $di->getConfig();
-//
-//    \Lib\Log::add([
-//        'SECRET NOT' => json_encode($data),
-//    ]);
-//
-//    header('Content-Type: application/json');
-//    \Service\Starter::parseQueue($oBot, $params);
-//    \Core\CommonObject::i()->getDI()->getShared('queue')->put('message', ['bot' => $bot, 'secret' => $secret, 'params' => $params]);
-    $captcha = new \Lib\Captcha();
-    $captcha->generate();
-
-    return $app->response->setContent('ok ' . $captcha->getText() . ' ' . $captcha->getImage());
+    $result = \Core\CommonObject::i()->getDI()->getShared('queue')->pullOne('captcha');
+    if (!$result) {
+        throw new Error('Нет капч');
+    }
+    $salt = md5(microtime() . $_SERVER['REMOTE_ADDR']);
+    \Core\CommonObject::i()->getDI()->getShared('cache')->save('captcha'.$salt, $result['code'], 60 * 5);
+    $result['salt'] = $salt;
+    $simpleView = new \Phalcon\Mvc\View\Simple();
+    $simpleView->setViewsDir(APP_PATH . '/views/');
+    return $app->response->setContent($simpleView->render("index", $result));
 })->via(['GET', 'POST']);

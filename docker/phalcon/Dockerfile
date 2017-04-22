@@ -22,4 +22,9 @@ RUN echo "xdebug.remote_autostart=on" >> /etc/php/7.0/fpm/conf.d/20-xdebug.ini
 RUN echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 RUN cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
+RUN pecl install amqp-1.4.0 && \
+    rm -rf /tmp/*
+
+RUN echo "extension=amqp.so" >> /etc/php/7.0/fpm/php.ini
+
 WORKDIR /app

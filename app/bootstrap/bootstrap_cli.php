@@ -49,7 +49,8 @@ try {
     include CONFIG_PATH . '/loader.php';
 
     // наш обработчик ошибок
-    function myHandler($level, $message, $file, $line, $context) {
+    function myHandler($level, $message, $file, $line, $context)
+    {
         // в зависимости от типа ошибки формируем заголовок сообщения
         switch ($level) {
             case E_WARNING:
@@ -95,18 +96,17 @@ try {
 
     \Core\CommonObject::i()->setApp($app);
 
-    \Core\CommonObject::i()->getDI()->getShared('queue')->pull('message', function ($result) {
-        if (!isset($result['bot'])) {
-            $bot = new \Skin\Bot('prod');
-            $params = $result;
-            $secret = null;
-        } else {
-            $bot = $result['bot'];
-            $params = $result['params'];
-            $secret = $result['secret'];
+    while (true) {
+        for ($i = \Core\CommonObject::i()->getDI()->getShared('queue')->count('captcha'); $i < 100; $i++) {
+            $captcha = new \Lib\Captcha();
+            $captcha->generate();
+            \Core\CommonObject::i()->getDI()->getShared('queue')->put('captcha', [
+                'code' => $captcha->getText(),
+                'image' => $captcha->getImage(),
+            ]);
         }
-        return \Service\Starter::parseQueue($bot, $params, $secret);
-    });
+        sleep(1);
+    }
 
     return $app;
 

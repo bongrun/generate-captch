@@ -2,6 +2,7 @@
 
 namespace Lib;
 
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -25,7 +26,7 @@ final class Queue
 
     private function loadChannel($channelName)
     {
-        $this->channel->queue_declare(
+        return $this->channel->queue_declare(
             $channelName,    #queue name - Имя очереди может содержать до 255 байт UTF-8 символов
             false,        #passive - может использоваться для проверки того, инициирован ли обмен, без того, чтобы изменять состояние сервера
             true,        #durable - убедимся, что RabbitMQ никогда не потеряет очередь при падении - очередь переживёт перезагрузку брокера
@@ -123,7 +124,6 @@ final class Queue
      *
      * @param string $channel
      * @param mixed $callback
-     * @return null
      */
     public function pull(string $channel, $callback)
     {
@@ -166,5 +166,16 @@ final class Queue
             }
         } catch (AMQPTimeoutException $e) {
         }
+    }
+
+    /**
+     * Количество сообщений в очереди
+     *
+     * @param string $channel
+     * @return int
+     */
+    public function count(string $channel)
+    {
+        return $this->loadChannel($channel)[1];
     }
 }
