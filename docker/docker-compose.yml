@@ -1,0 +1,104 @@
+version: "2"
+services:
+    composer:
+        image: composer/composer:php7
+        container_name: vkbot_composer
+        command: update --lock --ignore-platform-reqs
+        volumes:
+            - ../app:/app
+    nginx:
+        image: phalconphp/nginx
+        container_name: vkbot_nginx
+        ports:
+            - "7000:80"
+        volumes:
+            - ../app:/app
+            - ./nginx/default.conf:/etc/nginx/sites-available/default.conf
+            - ./nginx/default.conf:/etc/nginx/sites-enabled/default.conf
+        depends_on:
+            - php
+    php:
+        build:
+            context: ./phalcon
+            dockerfile: Dockerfile
+        entrypoint: ""
+        command: bash -c "php-fpm7.0 -F"
+        labels:
+            project.git: https://gitlab.com/bongrun/vkbot.git
+        container_name: vkbot_phalcon
+        working_dir: /app
+#        ports:
+#            - "12000:9000"
+#            - "13000:9001"
+        volumes:
+            - ../app:/app
+        depends_on:
+            - redis
+            - mongo
+            - rabbitmq
+            - composer
+        links:
+            - redis
+            - mongo
+            - rabbitmq
+            - composer
+        dns: 8.8.8.8
+    pm2:
+        build:
+            context: ./pm2
+            dockerfile: Dockerfile
+        entrypoint: ""
+        command: bash -c "pm2 start public/cli.php --interpreter=php && pm2 logs"
+        working_dir: /app
+        volumes:
+            - ../app:/app
+        depends_on:
+            - php
+        links:
+            - php
+        dns: 8.8.8.8
+    pm2_fake:
+        build:
+            context: ./pm2
+            dockerfile: Dockerfile
+        entrypoint: ""
+        command: bash -c "pm2 start public/fake.php --interpreter=php && pm2 logs"
+        working_dir: /app
+        volumes:
+            - ../app:/app
+        depends_on:
+            - php
+        links:
+            - php
+        dns: 8.8.8.8
+    mongodata:
+        image: mongo:3.0.4
+        container_name: vkbot_mongodata
+        volumes:
+            - vkbot-mongo:/data/db
+        command: --break-mongo
+    mongo:
+        image: mongo:latest
+        container_name: vkbot_mongo
+        volumes_from:
+            - mongodata
+        command: --smallfiles --rest
+    redis:
+        image: redis:alpine
+        command: redis-server --requirepass redis
+        container_name: vkbot_redis
+        volumes:
+            - vkbot-redis:/data
+    rabbitmq:
+        image: 'rabbitmq:3-management'
+        hostname: vkbot_rabbitmq_hn
+        container_name: vkbot_rabbitmq
+        ports:
+            - 9900:15672
+        volumes:
+            - vkbot-rabbitmq:/var/lib/rabbitmq
+
+volumes:
+  vkbot-redis:
+  vkbot-rabbitmq:
+  vkbot-mongo:
