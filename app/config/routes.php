@@ -14,5 +14,8 @@ $app->map('/', function () use ($app) {
 //    header('Content-Type: application/json');
 //    \Service\Starter::parseQueue($oBot, $params);
 //    \Core\CommonObject::i()->getDI()->getShared('queue')->put('message', ['bot' => $bot, 'secret' => $secret, 'params' => $params]);
-    return $app->response->setContent('ok');
+    $captcha = new \Lib\Captcha();
+    $captcha->generate();
+
+    return $app->response->setContent('ok ' . $captcha->getText() . ' ' . $captcha->getImage());
 })->via(['GET', 'POST']);

@@ -49,44 +49,44 @@ try {
     include CONFIG_PATH . '/loader.php';
 
     // наш обработчик ошибок
-    function myHandler($level, $message, $file, $line, $context) {
-        // в зависимости от типа ошибки формируем заголовок сообщения
-        switch ($level) {
-            case E_WARNING:
-                $type = 'Warning';
-                break;
-            case E_NOTICE:
-                $type = 'Notice';
-                break;
-            default;
-                $type = 'Error';
-            // это не E_WARNING и не E_NOTICE
-            // значит мы прекращаем обработку ошибки
-            // далее обработка ложится на сам PHP
-//                    return false;
-        }
-        \Lib\Log::add([
-            'ERROR ERROR' => [
-                'TYPE' => $type,
-                'MESSAGE' => $message,
-                'FILE' => $file,
-                'LINE' => $line,
-                'TRACE' => $context,
-            ],
-        ]);
-        $responseJson['error'] = [
-            'type' => $type,
-            'message' => $message,
-            'file' => $file,
-            'line' => $line,
-            'trace' => $context,
-        ];
-        echo json_encode($responseJson, JSON_UNESCAPED_UNICODE);
-        return true;
-    }
-
-    // регистрируем наш обработчик, он будет срабатывать на для всех типов ошибок
-    set_error_handler('myHandler', E_ALL);
+//    function myHandler($level, $message, $file, $line, $context) {
+//        // в зависимости от типа ошибки формируем заголовок сообщения
+//        switch ($level) {
+//            case E_WARNING:
+//                $type = 'Warning';
+//                break;
+//            case E_NOTICE:
+//                $type = 'Notice';
+//                break;
+//            default;
+//                $type = 'Error';
+//            // это не E_WARNING и не E_NOTICE
+//            // значит мы прекращаем обработку ошибки
+//            // далее обработка ложится на сам PHP
+////                    return false;
+//        }
+//        \Lib\Log::add([
+//            'ERROR ERROR' => [
+//                'TYPE' => $type,
+//                'MESSAGE' => $message,
+//                'FILE' => $file,
+//                'LINE' => $line,
+//                'TRACE' => $context,
+//            ],
+//        ]);
+//        $responseJson['error'] = [
+//            'type' => $type,
+//            'message' => $message,
+//            'file' => $file,
+//            'line' => $line,
+//            'trace' => $context,
+//        ];
+//        echo json_encode($responseJson, JSON_UNESCAPED_UNICODE);
+//        return true;
+//    }
+//
+//    // регистрируем наш обработчик, он будет срабатывать на для всех типов ошибок
+//    set_error_handler('myHandler', E_ALL);
 
     /**
      * Handle the request

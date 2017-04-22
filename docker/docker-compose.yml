@@ -2,13 +2,13 @@ version: "2"
 services:
     composer:
         image: composer/composer:php7
-        container_name: vkbot_composer
+        container_name: captcha_composer
         command: update --lock --ignore-platform-reqs
         volumes:
             - ../app:/app
     nginx:
         image: phalconphp/nginx
-        container_name: vkbot_nginx
+        container_name: captcha_nginx
         ports:
             - "7000:80"
         volumes:
@@ -23,7 +23,7 @@ services:
             dockerfile: Dockerfile
         entrypoint: ""
         command: bash -c "php-fpm7.0 -F"
-        container_name: vkbot_phalcon
+        container_name: captcha_phalcon
         working_dir: /app
 #        ports:
 #            - "12000:9000"
@@ -32,12 +32,10 @@ services:
             - ../app:/app
         depends_on:
             - redis
-            - mongo
             - rabbitmq
             - composer
         links:
             - redis
-            - mongo
             - rabbitmq
             - composer
         dns: 8.8.8.8
@@ -58,19 +56,19 @@ services:
     redis:
         image: redis:alpine
         command: redis-server --requirepass redis
-        container_name: vkbot_redis
+        container_name: captcha_redis
         volumes:
-            - vkbot-redis:/data
+            - captcha-redis:/data
     rabbitmq:
         image: 'rabbitmq:3-management'
-        hostname: vkbot_rabbitmq_hn
-        container_name: vkbot_rabbitmq
+        hostname: captcha_rabbitmq_hn
+        container_name: captcha_rabbitmq
         ports:
             - 9900:15672
         volumes:
-            - vkbot-rabbitmq:/var/lib/rabbitmq
+            - captcha-rabbitmq:/var/lib/rabbitmq
 
 volumes:
-  vkbot-redis:
-  vkbot-rabbitmq:
-  vkbot-mongo:
+  captcha-redis:
+  captcha-rabbitmq:
+  captcha-mongo:
