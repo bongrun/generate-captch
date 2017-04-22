@@ -23,8 +23,6 @@ services:
             dockerfile: Dockerfile
         entrypoint: ""
         command: bash -c "php-fpm7.0 -F"
-        labels:
-            project.git: https://gitlab.com/bongrun/vkbot.git
         container_name: vkbot_phalcon
         working_dir: /app
 #        ports:
@@ -57,32 +55,6 @@ services:
         links:
             - php
         dns: 8.8.8.8
-    pm2_fake:
-        build:
-            context: ./pm2
-            dockerfile: Dockerfile
-        entrypoint: ""
-        command: bash -c "pm2 start public/fake.php --interpreter=php && pm2 logs"
-        working_dir: /app
-        volumes:
-            - ../app:/app
-        depends_on:
-            - php
-        links:
-            - php
-        dns: 8.8.8.8
-    mongodata:
-        image: mongo:3.0.4
-        container_name: vkbot_mongodata
-        volumes:
-            - vkbot-mongo:/data/db
-        command: --break-mongo
-    mongo:
-        image: mongo:latest
-        container_name: vkbot_mongo
-        volumes_from:
-            - mongodata
-        command: --smallfiles --rest
     redis:
         image: redis:alpine
         command: redis-server --requirepass redis

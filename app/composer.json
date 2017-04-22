@@ -2,7 +2,6 @@
   "require": {
     "phalcon/devtools": "dev-master",
     "phalcon/incubator": "3.0.4",
-    "mongodb/mongodb": "^1.0.0",
     "videlalvaro/php-amqplib": "2.2.*"
   }
 }
