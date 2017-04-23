@@ -70,3 +70,22 @@ $di->setShared('queue', function () {
     ));
     return $queue;
 });
+
+$di->set(
+    "crypt",
+    function () {
+        $crypt = new \Phalcon\Crypt();
+
+        $crypt->setKey('#1dj8$=dp?.ak//j1V$-=so*(90ak@-');
+
+        return $crypt;
+    }
+);
+
+$di->set(
+    "cookies",
+    function () {
+        $cookies = new \Phalcon\Http\Response\Cookies();
+        return $cookies;
+    }
+);
